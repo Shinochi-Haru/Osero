@@ -245,5 +245,5 @@ Transform:
   - {fileID: 1373364768428388237}
   - {fileID: 1373364768803379226}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

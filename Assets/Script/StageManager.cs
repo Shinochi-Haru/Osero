@@ -20,14 +20,14 @@ namespace Reversi.Board
         /// <summary>
         /// セルの位置配列
         /// </summary>
-        private Vector3[,] _cellPositions;
+        private static Vector3[,] _cellPositions;
 
         /// <summary>
         /// 一辺あたりのセル数
         /// </summary>
         public static int CellSideCount => 8;
 
-        private void Awake()
+        private void Start()
         {
             // 土台となるオブジェクトを生成
             _boardCellsBase = new GameObject("BoardCells");
@@ -42,7 +42,7 @@ namespace Reversi.Board
         /// <summary>
         /// ボード生成処理
         /// </summary>
-        private void GenerateBoard()
+        public void GenerateBoard()
         {
             _cellPositions = new Vector3[CellSideCount, CellSideCount];
             for (var x = 0; x < CellSideCount; x++)
@@ -63,7 +63,7 @@ namespace Reversi.Board
         /// <summary>
         /// 指定セルの位置を取得
         /// </summary>
-        public Vector3 GetCellPosition(int x, int z)
+        public static Vector3 GetCellPosition(int x, int z)
         {
             return _cellPositions[x, z];
         }
