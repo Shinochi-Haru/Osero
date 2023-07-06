@@ -55,10 +55,6 @@ public class Sample2 : MonoBehaviour, IPointerClickHandler
             {
                 _gameInProgress = false;
                 float elapsedTime = Time.time - _startTime;
-
-                Debug.Log("Congratulations! Game Cleared!");
-                Debug.Log("Total Moves: " + _moves);
-                Debug.Log("Total Time: " + elapsedTime.ToString("F2") + " seconds");
             }
             // 時間のテキストを更新
             UpdateTimeText();
@@ -70,7 +66,6 @@ public class Sample2 : MonoBehaviour, IPointerClickHandler
         var cell = eventData.pointerCurrentRaycast.gameObject;
         var image = cell.GetComponent<Image>();
 
-        // ゲームが進行中でなければゲームを開始
         if (!_gameInProgress)
         {
             _gameInProgress = true;
