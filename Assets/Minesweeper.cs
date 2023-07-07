@@ -19,6 +19,7 @@ public class Minesweeper : MonoBehaviour
     [SerializeField]
     private Cell _cellPrefab = null;
 
+
     private void Start()
     {
         _gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
@@ -33,27 +34,45 @@ public class Minesweeper : MonoBehaviour
                 var cell = Instantiate(_cellPrefab);
                 cell.transform.SetParent(parent);
                 cells[r, c] = cell;
+                cell.name = $"cell[]";
             }
         }
 
+        if (_mineCount > cells.Length)
+        {
+            throw new System.Exception("地雷数がセル数より大きいです");
+        }
         var minePositions = new HashSet<Vector2Int>();
 
         //地雷の配置
-        for (var i = 0; i < _mineCount; i++)
+        for (var i = 0; i < _mineCount;)
         {
             var r = Random.Range(0, _rows);
             var c = Random.Range(0, _columns);
-            var position = new Vector2Int(r, c);
+            //var position = new Vector2Int(r, c);
+            var cell = cells[r, c];
 
-            if (minePositions.Contains(position))
+            // ランダムに選んだセルが地雷設置済みかどうか
+            if (cell.CellState == CellState.Mine)
             {
-                i--;
-                continue;
+                continue; // ループやり直す
             }
 
-            var cell = cells[r, c];
+            // 地雷を設置
             cell.CellState = CellState.Mine;
-            minePositions.Add(position);
+            i++; // ループカウントを増やす
+
+
+            //if (minePositions.Contains(position))
+            //{
+            //    Debug.Log("再抽選");
+            //    continue;
+            //}
+
+            //var cell = cells[r, c];
+            //cell.CellState = CellState.Mine;
+            //minePositions.Add(position);
+            //i++;
         }
 
         // 周囲の地雷数を設定する
