@@ -13,16 +13,17 @@ public enum CellState
     Six = 6,
     Seven = 7,
     Eight = 8,
+
     Mine = -1,
 }
 
-public class Cell : MonoBehaviour, IPointerClickHandler
+public class Cell : MonoBehaviour
 {
     [SerializeField]
-    private Text _view = null;
+    private Text _view = null; // 状態を表示するテキスト
 
-    private bool _isClosed = true;
-    private bool _isMine = false;
+    [SerializeField]
+    private Image _cover = null; // 背面を隠す蓋
 
     [SerializeField]
     private CellState _cellState = CellState.None;
@@ -36,23 +37,24 @@ public class Cell : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public Vector2Int GridPosition { get; internal set; }
+    /// <summary>
+    /// セルが開いているかどうか。
+    /// </summary>
+    public bool IsOpen => !_cover.enabled;
 
-    private void Start()
+    /// <summary>
+    /// 閉じているセルを開く。
+    /// </summary>
+    public void Open() => _cover.enabled = false;
+
+    private void OnValidate()
     {
-        Close();
+        OnCellStateChanged();
     }
 
-    public void Close()
+    private void OnCellStateChanged()
     {
-        _isClosed = true;
-        _view.text = "";
-        _view.color = Color.black;
-    }
-
-    public void Open()
-    {
-        _isClosed = false;
+        if (_view == null) { return; }
 
         if (_cellState == CellState.None)
         {
@@ -63,63 +65,10 @@ public class Cell : MonoBehaviour, IPointerClickHandler
             _view.text = "X";
             _view.color = Color.red;
         }
-        else if (_cellState >= CellState.One && _cellState <= CellState.Eight)
+        else
         {
             _view.text = ((int)_cellState).ToString();
             _view.color = Color.blue;
-        }
-    }
-
-    public void OnCellStateChanged()
-    {
-        if (_isClosed)
-        {
-            Close();
-        }
-        else
-        {
-            Open();
-        }
-    }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (_isClosed)
-        {
-            Open();
-
-            if (_cellState == CellState.Mine)
-            {
-                // ゲームオーバー処理
-                Debug.Log("Game Over!");
-            }
-        }
-    }
-
-    public void SetNumber(int number)
-    {
-        _cellState = (CellState)number;
-
-        if (_isClosed)
-        {
-            _view.text = "";
-        }
-        else
-        {
-            if (_cellState == CellState.None)
-            {
-                _view.text = "";
-            }
-            else if (_cellState == CellState.Mine)
-            {
-                _view.text = "X";
-                _view.color = Color.red;
-            }
-            else if (_cellState >= CellState.One && _cellState <= CellState.Eight)
-            {
-                _view.text = ((int)_cellState).ToString();
-                _view.color = Color.blue;
-            }
         }
     }
 }

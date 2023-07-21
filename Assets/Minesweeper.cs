@@ -1,8 +1,8 @@
-using System.Collections.Generic;
-using UnityEngine.UI;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class Minesweeper : MonoBehaviour
+public class Minesweeper : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField]
     private int _rows = 1;
@@ -19,96 +19,132 @@ public class Minesweeper : MonoBehaviour
     [SerializeField]
     private Cell _cellPrefab = null;
 
+    private Cell[,] _cells;
+
+    /// <summary>
+    /// ゲームクリアしているかどうか。
+    /// </summary>
+    private bool IsSuccess => _openCount == (_cells.Length - _mineCount);
+
+    private int _openCount = 0;
 
     private void Start()
     {
         _gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         _gridLayoutGroup.constraintCount = _columns;
 
-        var cells = new Cell[_rows, _columns];
-        var parent = _gridLayoutGroup.transform;
+        _cells = new Cell[_rows, _columns];
+        var parent = _gridLayoutGroup.gameObject.transform;
         for (var r = 0; r < _rows; r++)
         {
             for (var c = 0; c < _columns; c++)
             {
                 var cell = Instantiate(_cellPrefab);
                 cell.transform.SetParent(parent);
-                cells[r, c] = cell;
-                cell.name = $"cell[]";
+                cell.name = $"Cell({r}, {c})";
+                _cells[r, c] = cell;
             }
         }
+    }
 
-        if (_mineCount > cells.Length)
+    /// <summary>
+    /// 指定の行番号・列番号のセルを取得する。
+    /// </summary>
+    /// <param name="row">行番号。</param>
+    /// <param name="column">列番号。</param>
+    /// <param name="cell">セル。</param>
+    /// <returns>セルを取得できれば true。そうでなければ false。</returns>
+    private bool TryGetCell(int row, int column, out Cell cell)
+    {
+        if (row < 0 || column < 0 || row >= _cells.GetLength(0) || column >= _cells.GetLength(1))
         {
-            throw new System.Exception("地雷数がセル数より大きいです");
+            cell = null;
+            return false;
         }
-        var minePositions = new HashSet<Vector2Int>();
 
-        //地雷の配置
+        cell = _cells[row, column];
+        return true;
+    }
+
+    /// <summary>
+    /// すべてのセルを対象に、指定の数だけ地雷をランダムに設置する。
+    /// </summary>
+    /// <param name="mineCount">地雷数。</param>
+    /// <param name="ignore">地雷を配置しないセル。</param>
+    private void PlaceMines(int mineCount, Cell ignore)
+    {
+        if (mineCount > _cells.Length)
+        {
+            throw new System.ArgumentException(nameof(mineCount), "地雷数がセル数より大きいです。");
+        }
+
+        // すべてのセルの状態を None に初期化する
+        foreach (var cell in _cells) { cell.CellState = CellState.None; }
+
         for (var i = 0; i < _mineCount;)
         {
             var r = Random.Range(0, _rows);
             var c = Random.Range(0, _columns);
-            //var position = new Vector2Int(r, c);
-            var cell = cells[r, c];
-
-            // ランダムに選んだセルが地雷設置済みかどうか
-            if (cell.CellState == CellState.Mine)
-            {
-                continue; // ループやり直す
-            }
-
-            // 地雷を設置
-            cell.CellState = CellState.Mine;
-            i++; // ループカウントを増やす
-
-
-            //if (minePositions.Contains(position))
-            //{
-            //    Debug.Log("再抽選");
-            //    continue;
-            //}
-
-            //var cell = cells[r, c];
-            //cell.CellState = CellState.Mine;
-            //minePositions.Add(position);
-            //i++;
-        }
-
-        // 周囲の地雷数を設定する
-        for (var r = 0; r < _rows; r++)
-        {
-            for (var c = 0; c < _columns; c++)
-            {
-                var cell = cells[r, c];
-                if (cell.CellState != CellState.Mine)
-                {
-                    var surroundingMineCount = GetSurroundingMineCount(cells, r, c);
-                    cell.SetNumber(surroundingMineCount);
-                }
-            }
+            if (ignore == _cells[r, c]) { continue; }
+            if (TryPlaceMine(r, c)) { i++; }
         }
     }
-    //接している地雷のカウント処理
-    private int GetSurroundingMineCount(Cell[,] cells, int row, int column)
+
+    /// <summary>
+    /// 指定の行番号・列番号に地雷を設置する。
+    /// </summary>
+    /// <param name="row">行番号。</param>
+    /// <param name="column">列番号。</param>
+    /// <returns>地雷を設置できれば true。そうでなければ false。</returns>
+    private bool TryPlaceMine(int row, int column)
     {
-        var count = 0;
-        var rows = cells.GetLength(0);
-        var columns = cells.GetLength(1);
+        // セルを取得できなければ失敗
+        if (!TryGetCell(row, column, out Cell cell)) { return false; }
 
-        for (var r = Mathf.Max(0, row - 1); r <= Mathf.Min(row + 1, rows - 1); r++)
+        // 地雷設置済みなら失敗
+        if (cell.CellState == CellState.Mine) { return false; }
+
+        // 地雷を設置
+        cell.CellState = CellState.Mine;
+
+        // 周囲のセル（地雷以外）の値をインクリメントする
+        { if (TryGetCell(row - 1, column - 1, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
+        { if (TryGetCell(row - 1, column, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
+        { if (TryGetCell(row - 1, column + 1, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
+        { if (TryGetCell(row, column - 1, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
+        { if (TryGetCell(row, column + 1, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
+        { if (TryGetCell(row + 1, column - 1, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
+        { if (TryGetCell(row + 1, column, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
+        { if (TryGetCell(row + 1, column + 1, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
+
+        return true;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        var target = eventData.pointerCurrentRaycast.gameObject;
+
+        // セルをクリックした
+        if (target.TryGetComponent<Cell>(out var cell))
         {
-            for (var c = Mathf.Max(0, column - 1); c <= Mathf.Min(column + 1, columns - 1); c++)
+            // 最初の一手目が地雷かどうか
+            if (_openCount == 0)
             {
-                if (r == row && c == column) continue;
+                // 地雷を再配置する
+                PlaceMines(_mineCount, cell);
+            }
 
-                var cell = cells[r, c];
-                if (cell.CellState == CellState.Mine)
-                {
-                    count++;
-                }
+            // セルを開く
+            cell.Open();
+            _openCount++;
+            if (cell.CellState == CellState.Mine) // 開いたセルが地雷
+            {
+                Debug.Log("ゲームーオーバー");
+            }
+            else if (IsSuccess)
+            {
+                Debug.Log("ゲームークリア");
             }
         }
-        return count;
     }
 }
