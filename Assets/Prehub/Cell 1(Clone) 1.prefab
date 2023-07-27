@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 7403242388614277487}
   - component: {fileID: 994447700831372909}
   - component: {fileID: 1334245429369644044}
-  - component: {fileID: 3294847201736361506}
+  - component: {fileID: -1181382119576122797}
   m_Layer: 5
   m_Name: Cell 1(Clone) 1
   m_TagString: Untagged
@@ -155,21 +155,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &3294847201736361506
+--- !u!114 &-1181382119576122797
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5800138313929866185}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57032721e81eb7847b5001323d30b54e, type: 3}
+  m_Script: {fileID: 11500000, guid: 801ad2d33599384488cb1592edc67596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _view: {fileID: 9126464687441669023}
-  _cover: {fileID: 3257704250788319759}
-  _cellState: 0
+  row: 15
+  column: 15
+  isAlive: 0
 --- !u!1 &5813474012394724105
 GameObject:
   m_ObjectHideFlags: 0

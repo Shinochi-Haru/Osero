@@ -179,7 +179,7 @@ MonoBehaviour:
   _columns: 10
   _mineCount: 25
   _gridLayoutGroup: {fileID: 1196810860}
-  _cellPrefab: {fileID: 3294847201736361506, guid: c0036c409697182438e0353f00663adc, type: 3}
+  _cellPrefab: {fileID: 7943223302738500328, guid: 4aac6efc80c76a74a873c42db24509ac, type: 3}
 --- !u!114 &1196810860
 MonoBehaviour:
   m_ObjectHideFlags: 0

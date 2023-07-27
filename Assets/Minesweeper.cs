@@ -45,6 +45,8 @@ public class Minesweeper : MonoBehaviour, IPointerClickHandler
                 _cells[r, c] = cell;
             }
         }
+
+        PlaceMines(_mineCount);
     }
 
     /// <summary>
@@ -71,7 +73,7 @@ public class Minesweeper : MonoBehaviour, IPointerClickHandler
     /// </summary>
     /// <param name="mineCount">地雷数。</param>
     /// <param name="ignore">地雷を配置しないセル。</param>
-    private void PlaceMines(int mineCount, Cell ignore)
+    private void PlaceMines(int mineCount, Cell ignore = null)
     {
         if (mineCount > _cells.Length)
         {
@@ -128,23 +130,92 @@ public class Minesweeper : MonoBehaviour, IPointerClickHandler
         if (target.TryGetComponent<Cell>(out var cell))
         {
             // 最初の一手目が地雷かどうか
-            if (_openCount == 0)
+            if (_openCount == 0 && cell.CellState == CellState.Mine)
             {
                 // 地雷を再配置する
                 PlaceMines(_mineCount, cell);
             }
 
             // セルを開く
-            cell.Open();
-            _openCount++;
-            if (cell.CellState == CellState.Mine) // 開いたセルが地雷
+            if (TryOpen(cell))
             {
-                Debug.Log("ゲームーオーバー");
-            }
-            else if (IsSuccess)
-            {
-                Debug.Log("ゲームークリア");
+                if (cell.CellState == CellState.Mine) // 開いたセルが地雷
+                {
+                    Debug.Log("ゲームーオーバー");
+                }
+                else if (IsSuccess)
+                {
+                    Debug.Log("ゲームークリア");
+                }
             }
         }
+    }
+
+    /// <summary>
+    /// 指定したセルを開く。
+    /// </summary>
+    /// <param name="cell">開くセル。</param>
+    /// <returns>セルを開けたら true。そうでなければ false。</returns>
+    private bool TryOpen(Cell cell)
+        => TryGetCellPosition(cell, out var r, out var c)
+            && TryOpen(r, c);
+
+    /// <summary>
+    /// 指定の行番号・列番号のセルを開く。
+    /// </summary>
+    /// <param name="row">行番号。</param>
+    /// <param name="column">列番号。</param>
+    /// <returns>セルを開くことができれば true。そうでなければ false。</returns>
+    private bool TryOpen(int row, int column)
+    {
+        // 無効な行番号・列番号なら失敗
+        if (!TryGetCell(row, column, out var cell)) { return false; }
+
+        // 既に開いている場合は失敗。
+        if (cell.IsOpen) { return false; }
+
+        cell.Open(); // セル自身を開く
+        _openCount++;
+
+        if (cell.CellState == CellState.None) // 開いたセルが空白だった
+        {
+            // 周囲のセルを展開する
+            TryOpen(row - 1, column - 1); // 左上
+            TryOpen(row - 1, column); // 上
+            TryOpen(row - 1, column + 1); // 右上
+            TryOpen(row, column - 1); // 左
+            TryOpen(row, column + 1); // 右
+            TryOpen(row + 1, column - 1); // 左下
+            TryOpen(row + 1, column); // 下
+            TryOpen(row + 1, column + 1); // 右下
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 指定したセルの行番号と列番号を返す。
+    /// </summary>
+    /// <param name="cell">調べるセル。</param>
+    /// <param name="row">行番号。</param>
+    /// <param name="column">列番号。</param>
+    /// <returns>成功すれば true。失敗すれば false。</returns>
+    private bool TryGetCellPosition(Cell cell, out int row, out int column)
+    {
+        for (var r = 0; r < _cells.GetLength(0); r++)
+        {
+            for (var c = 0; c < _cells.GetLength(1); c++)
+            {
+                if (cell == _cells[r, c])
+                {
+                    row = r;
+                    column = c;
+                    return true;
+                }
+            }
+        }
+
+        row = 0; column = 0;
+        return false;
     }
 }
