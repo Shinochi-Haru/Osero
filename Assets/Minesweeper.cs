@@ -81,7 +81,7 @@ public class Minesweeper : MonoBehaviour, IPointerClickHandler
         }
 
         // すべてのセルの状態を None に初期化する
-        foreach (var cell in _cells) { cell.CellState = CellState.None; }
+        foreach (var cell in _cells) { cell.CellState = CellState1.None; }
 
         for (var i = 0; i < _mineCount;)
         {
@@ -104,20 +104,20 @@ public class Minesweeper : MonoBehaviour, IPointerClickHandler
         if (!TryGetCell(row, column, out Cell cell)) { return false; }
 
         // 地雷設置済みなら失敗
-        if (cell.CellState == CellState.Mine) { return false; }
+        if (cell.CellState == CellState1.Mine) { return false; }
 
         // 地雷を設置
-        cell.CellState = CellState.Mine;
+        cell.CellState = CellState1.Mine;
 
         // 周囲のセル（地雷以外）の値をインクリメントする
-        { if (TryGetCell(row - 1, column - 1, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
-        { if (TryGetCell(row - 1, column, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
-        { if (TryGetCell(row - 1, column + 1, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
-        { if (TryGetCell(row, column - 1, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
-        { if (TryGetCell(row, column + 1, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
-        { if (TryGetCell(row + 1, column - 1, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
-        { if (TryGetCell(row + 1, column, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
-        { if (TryGetCell(row + 1, column + 1, out Cell x) && x.CellState != CellState.Mine) { x.CellState++; } }
+        { if (TryGetCell(row - 1, column - 1, out Cell x) && x.CellState != CellState1.Mine) { x.CellState++; } }
+        { if (TryGetCell(row - 1, column, out Cell x) && x.CellState != CellState1.Mine) { x.CellState++; } }
+        { if (TryGetCell(row - 1, column + 1, out Cell x) && x.CellState != CellState1.Mine) { x.CellState++; } }
+        { if (TryGetCell(row, column - 1, out Cell x) && x.CellState != CellState1.Mine) { x.CellState++; } }
+        { if (TryGetCell(row, column + 1, out Cell x) && x.CellState != CellState1.Mine) { x.CellState++; } }
+        { if (TryGetCell(row + 1, column - 1, out Cell x) && x.CellState != CellState1.Mine) { x.CellState++; } }
+        { if (TryGetCell(row + 1, column, out Cell x) && x.CellState != CellState1.Mine) { x.CellState++; } }
+        { if (TryGetCell(row + 1, column + 1, out Cell x) && x.CellState != CellState1.Mine) { x.CellState++; } }
 
         return true;
     }
@@ -130,7 +130,7 @@ public class Minesweeper : MonoBehaviour, IPointerClickHandler
         if (target.TryGetComponent<Cell>(out var cell))
         {
             // 最初の一手目が地雷かどうか
-            if (_openCount == 0 && cell.CellState == CellState.Mine)
+            if (_openCount == 0 && cell.CellState == CellState1.Mine)
             {
                 // 地雷を再配置する
                 PlaceMines(_mineCount, cell);
@@ -139,7 +139,7 @@ public class Minesweeper : MonoBehaviour, IPointerClickHandler
             // セルを開く
             if (TryOpen(cell))
             {
-                if (cell.CellState == CellState.Mine) // 開いたセルが地雷
+                if (cell.CellState == CellState1.Mine) // 開いたセルが地雷
                 {
                     Debug.Log("ゲームーオーバー");
                 }
@@ -177,7 +177,7 @@ public class Minesweeper : MonoBehaviour, IPointerClickHandler
         cell.Open(); // セル自身を開く
         _openCount++;
 
-        if (cell.CellState == CellState.None) // 開いたセルが空白だった
+        if (cell.CellState == CellState1.None) // 開いたセルが空白だった
         {
             // 周囲のセルを展開する
             TryOpen(row - 1, column - 1); // 左上

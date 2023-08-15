@@ -421,7 +421,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1212087336}
   - component: {fileID: 1212087337}
-  - component: {fileID: 1212087338}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -460,23 +459,6 @@ MonoBehaviour:
   whitePiecePrefab: {fileID: 3006518153415684571, guid: 241e8e2df5a5d4246b1e49af97fa163d, type: 3}
   boardSize: 8
   highlightPrefab: {fileID: 6952241031075596905, guid: a7ddc9ecf257628418f3f6a76c389e1f, type: 3}
---- !u!114 &1212087338
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1212087335}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddad0f9d3ec541c45b105bb6113d95a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _rows: 1
-  _columns: 1
-  _mineCount: 1
-  _gridLayoutGroup: {fileID: 0}
-  _cellPrefab: {fileID: 0}
 --- !u!1 &1230426548
 GameObject:
   m_ObjectHideFlags: 0
@@ -512,10 +494,10 @@ RectTransform:
   m_Father: {fileID: 51694918}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 714, y: 683}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1230426550
 MonoBehaviour:
@@ -537,10 +519,10 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 50, y: 50}
-  m_Spacing: {x: 0, y: 0}
+  m_CellSize: {x: 60, y: 60}
+  m_Spacing: {x: 2, y: 2}
   m_Constraint: 1
-  m_ConstraintCount: 12
+  m_ConstraintCount: 8
 --- !u!114 &1230426551
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -554,7 +536,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -591,11 +573,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddad0f9d3ec541c45b105bb6113d95a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _rows: 10
-  _columns: 10
+  _rows: 8
+  _columns: 8
   _mineCount: 1
   _gridLayoutGroup: {fileID: 1230426550}
-  _cellPrefab: {fileID: 7943223302738500328, guid: 4aac6efc80c76a74a873c42db24509ac, type: 3}
+  _cellPrefab: {fileID: 3065274135319746762, guid: 2a4b62e92c369304bbb256aa17a40adb, type: 3}
 --- !u!1 &2052891665
 GameObject:
   m_ObjectHideFlags: 0

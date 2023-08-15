@@ -1,185 +1,143 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static CellController;
 
-public class LifeGame : MonoBehaviour, IPointerClickHandler
+namespace Tutorial.LifeGame
 {
-    private enum CellStatus
+    public class LifeGame : MonoBehaviour
     {
-        Dead = 0, // 死亡
-        Arive = 1, // 生存
-    }
-    [SerializeField] private int _row = 5;
-    [SerializeField] private int _column = 5;
-    private Image[,] _cells;
-    private bool _gameInProgress;
+        [SerializeField]
+        private int _rows = 10; // 行数
 
-    // 世代更新の間隔（秒）を設定（例：1秒ごとに更新）
-    [SerializeField] private float _generationInterval = 1f;
-    private float _timeSinceLastGeneration;
+        [SerializeField]
+        private int _columns = 20; // 列数
 
-    private void Start()
-    {
-        // ゲームが進行中かを示すフラグを初期化
-        _gameInProgress = false;
+        [SerializeField]
+        private CellController _cellPrefab = null; // セルのコピー元プレハブ
 
-        // _cells配列を指定された行数と列数で初期化する
-        _cells = new Image[_row, _column];
+        [SerializeField]
+        private GridLayoutGroup _gridLayoutGroup = null;
 
-        // セルを作成しランダムな色で初期化
-        for (var r = 0; r < _row; r++)
+        private CellController[,] _cells;
+
+        private void Start()
         {
-            for (var c = 0; c < _column; c++)
+            _gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            _gridLayoutGroup.constraintCount = _columns;
+            var parent = _gridLayoutGroup.gameObject.transform;
+
+            _cells = new CellController[_rows, _columns];
+            for (var r = 0; r < _rows; r++)
             {
-                var cell = new GameObject($"Cell({r}, {c})");
-                cell.transform.parent = transform;
-                var image = cell.AddComponent<Image>();
-
-                // セルの色をランダムに初期化
-                image.color = GetRandomColor();
-
-                _cells[r, c] = image;
-            }
-        }
-    }
-
-    private void Update()
-    {
-        if (_gameInProgress)
-        {
-            // 時間が経過したら新しい世代を計算
-            _timeSinceLastGeneration += Time.deltaTime;
-            if (_timeSinceLastGeneration >= _generationInterval)
-            {
-                CalculateNextGeneration();
-                _timeSinceLastGeneration = 0f;
-            }
-        }
-    }
-
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        var cell = eventData.pointerCurrentRaycast.gameObject;
-        var image = cell.GetComponent<Image>();
-
-        if (!_gameInProgress)
-        {
-            _gameInProgress = true;
-        }
-
-        // クリックしたセルの座標を取得
-        int clickedRow = -1;
-        int clickedColumn = -1;
-
-        for (int r = 0; r < _row; r++)
-        {
-            for (int c = 0; c < _column; c++)
-            {
-                if (_cells[r, c] == image)
+                for (var c = 0; c < _columns; c++)
                 {
-                    clickedRow = r;
-                    clickedColumn = c;
-                    break;
+                    var cell = Instantiate(_cellPrefab, parent);
+                    cell.name = $"Cell({r}, {c})";
+                    _cells[r, c] = cell;
+                }
+            }
+
+            // 適当にランダムで生きているセルを設置
+            for (var r = 0; r < _rows; r++)
+            {
+                for (var c = 0; c < _columns; c++)
+                {
+                    _cells[r, c].State = Random.value > 0.8
+                        ? CellState.Alive : CellState.Dead;
                 }
             }
         }
-        FlipCellColor(clickedRow, clickedColumn);
-    }
-    private void FlipCellColor(int row, int column)
-    {
-        if (row >= 0 && row < _row && column >= 0 && column < _column)
+
+        private void Update()
         {
-            var cell = _cells[row, column];
-            if (cell.color == Color.white)
+            if (Input.GetKeyDown(KeyCode.Space))
             {
-                cell.color = Color.black;
-            }
-            else
-            {
-                cell.color = Color.white;
+                Step();
             }
         }
-    }
 
-    private Color GetRandomColor()
-    {
-        // ランダムな色を返す
-        return Random.value < 0.5f ? Color.white : Color.black;
-    }
-
-    private void CalculateNextGeneration()
-    {
-        var nextGeneration = new CellStatus[_row, _column];
-
-        // 新しい世代のセルの状態を計算
-        for (int r = 0; r < _row; r++)
+        /// <summary>
+        /// セルの状態を判定して次の世代に更新する。
+        /// </summary>
+        private void Step()
         {
-            for (int c = 0; c < _column; c++)
+            // 次の世代の状態を保存しておくための二次元配列
+            var nextCells = new CellState[_rows, _columns];
+
+            for (var r = 0; r < _rows; r++)
             {
-                var aliveNeighbors = CountAliveNeighbors(r, c);
-                if (_cells[r, c].color == Color.black)
+                for (var c = 0; c < _columns; c++)
                 {
-                    // 死んでいるセルの処理
-                    if (aliveNeighbors == 3)
+                    var cell = _cells[r, c];
+
+                    // 周囲の生きているセル数
+                    var ac = GetNeighborCount(r, c, CellState.Alive);
+
+                    if (cell.State == CellState.Dead) // 死んでいるセル
                     {
-                        nextGeneration[r, c] = CellStatus.Arive;
+                        // 周囲に生きたセルが3つあれば誕生
+                        if (ac == 3) { nextCells[r, c] = CellState.Alive; }
                     }
-                    else if(aliveNeighbors >= 1)
+                    else // 生きているセル
                     {
-                        nextGeneration[r, c] = CellStatus.Dead;
-                    }
-                }
-                else
-                {
-                    // 生きているセルの処理
-                    if (aliveNeighbors == 2 || aliveNeighbors == 3)
-                    {
-                        nextGeneration[r, c] = CellStatus.Arive;
-                    }
-                    else if(aliveNeighbors <= 4)
-                    {
-                        nextGeneration[r, c] = CellStatus.Dead;
+                        // 周囲に生きたセルが2～3つあれば生存、それ以外は死滅
+                        if (ac == 2 || ac == 3) { nextCells[r, c] = CellState.Alive; }
+                        else { nextCells[r, c] = CellState.Dead; }
                     }
                 }
             }
-        }
 
-        // 新しい世代を反映
-        for (int r = 0; r < _row; r++)
-        {
-            for (int c = 0; c < _column; c++)
+            // すべての判定が終わったら次の世代に入れ替える
+            for (var r = 0; r < _rows; r++)
             {
-                if (nextGeneration[r, c] == CellStatus.Arive)
+                for (var c = 0; c < _columns; c++)
                 {
-                    _cells[r, c].color = Color.black;
-                }
-                else
-                {
-                    _cells[r, c].color = Color.white;
+                    _cells[r, c].State = nextCells[r, c];
                 }
             }
+        }
+
+        /// <summary>
+        /// 指定の行番号・列番号の周囲の指定の状態のセル数を返す。
+        /// </summary>
+        /// <param name="row">行番号。</param>
+        /// <param name="column">列番号。</param>
+        /// <param name="state">セルの状態。</param>
+        /// <returns>周囲の <paramref name="state"/> 状態のセル数を返す。</returns>
+        private int GetNeighborCount(int row, int column, CellState state)
+        {
+            int count = 0;
+
+            // 周囲のセルが指定の状態なら count をインクリメントする。
+            { if (TryGetCell(row - 1, column - 1, out CellController x) && x.State == state) { count++; } }
+            { if (TryGetCell(row - 1, column, out CellController x) && x.State == state) { count++; } }
+            { if (TryGetCell(row - 1, column + 1, out CellController x) && x.State == state) { count++; } }
+            { if (TryGetCell(row, column - 1, out CellController x) && x.State == state) { count++; } }
+            { if (TryGetCell(row, column + 1, out CellController x) && x.State == state) { count++; } }
+            { if (TryGetCell(row + 1, column - 1, out CellController x) && x.State == state) { count++; } }
+            { if (TryGetCell(row + 1, column, out CellController x) && x.State == state) { count++; } }
+            { if (TryGetCell(row + 1, column + 1, out CellController x) && x.State == state) { count++; } }
+
+            return count;
+        }
+
+        /// <summary>
+        /// 指定の行番号・列番号のセルを取得する。
+        /// </summary>
+        /// <param name="row">行番号。</param>
+        /// <param name="column">列番号。</param>
+        /// <param name="cell">セル。</param>
+        /// <returns>セルを取得できれば true。そうでなければ false。</returns>
+        private bool TryGetCell(int row, int column, out CellController cell)
+        {
+            if (row < 0 || column < 0 || row >= _cells.GetLength(0) || column >= _cells.GetLength(1))
+            {
+                cell = null;
+                return false;
+            }
+
+            cell = _cells[row, column];
+            return true;
         }
     }
-
-    private int CountAliveNeighbors(int row, int column)
-    {
-        int count = 0;
-        for (int r = row - 1; r <= row + 1; r++)
-        {
-            for (int c = column - 1; c <= column + 1; c++)
-            {
-                if (r >= 0 && r < _row && c >= 0 && c < _column && !(r == row && c == column))
-                {
-                    if (_cells[r, c].color == Color.black)
-                    {
-                        count++;
-                    }
-                }
-            }
-        }
-        return count;
-    } 
 }

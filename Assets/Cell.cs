@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public enum CellState
+public enum CellState1
 {
     None = 0,
     One = 1,
@@ -26,8 +26,8 @@ public class Cell : MonoBehaviour
     private Image _cover = null; // ”w–Ê‚ð‰B‚·ŠW
 
     [SerializeField]
-    private CellState _cellState = CellState.None;
-    public CellState CellState
+    private CellState1 _cellState = CellState1.None;
+    public CellState1 CellState
     {
         get => _cellState;
         set
@@ -56,11 +56,11 @@ public class Cell : MonoBehaviour
     {
         if (_view == null) { return; }
 
-        if (_cellState == CellState.None)
+        if (_cellState == CellState1.None)
         {
             _view.text = "";
         }
-        else if (_cellState == CellState.Mine)
+        else if (_cellState == CellState1.Mine)
         {
             _view.text = "X";
             _view.color = Color.red;
