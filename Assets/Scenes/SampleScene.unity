@@ -427,7 +427,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1212087336
 Transform:
   m_ObjectHideFlags: 0
@@ -455,10 +455,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e929a0fc908d4914bb847cffcccb21e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blackPiecePrefab: {fileID: 550470283147305875, guid: 2da98c76395b74a498a9ee7d4fa8b957, type: 3}
-  whitePiecePrefab: {fileID: 3006518153415684571, guid: 241e8e2df5a5d4246b1e49af97fa163d, type: 3}
-  boardSize: 8
-  highlightPrefab: {fileID: 6952241031075596905, guid: a7ddc9ecf257628418f3f6a76c389e1f, type: 3}
 --- !u!1 &1230426548
 GameObject:
   m_ObjectHideFlags: 0
@@ -573,6 +569,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddad0f9d3ec541c45b105bb6113d95a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  blackPiecePrefab: {fileID: 550470283147305875, guid: 2da98c76395b74a498a9ee7d4fa8b957, type: 3}
+  whitePiecePrefab: {fileID: 3006518153415684571, guid: 241e8e2df5a5d4246b1e49af97fa163d, type: 3}
   _rows: 8
   _columns: 8
   _mineCount: 1

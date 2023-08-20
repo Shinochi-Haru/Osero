@@ -1,49 +1,82 @@
-using Reversi.Board;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public class OthelloGame : MonoBehaviour, IPointerClickHandler
+public class OthelloGame : MonoBehaviour
 {
-    private StageManager stageManager; // StageManagerへの参照
+    [SerializeField] public GameObject CellPrefab;
+    [SerializeField] public GameObject blackPiecePrefab; // 黒石のプレファブ
+    [SerializeField] public GameObject whitePiecePrefab; // 白石のプレファブ
+    [SerializeField] public float spacing = 1.0f; // オブジェクト間の間隔
+    [SerializeField] public int rows = 8; // 行数
+    [SerializeField] public int columns = 8; // 列数
+
+    private GameObject[,] grid; // グリッドの二次元配列
 
     private void Start()
     {
-        stageManager = FindObjectOfType<StageManager>(); // StageManagerを検索して参照を取得
-
-        // StageManagerの初期化
-        stageManager.InitializeBoard();
-
-        // ゲームの初期化
-        InitializeGame();
+        InitializeGrid();
+        CreateGrid();
+        SetupInitialPieces();
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    void InitializeGrid()
     {
-        // クリックしたセルの座標を取得
-        Vector3 clickPosition = eventData.pointerCurrentRaycast.worldPosition;
-
-        // セルの座標から行と列を計算
-        int row = Mathf.FloorToInt(clickPosition.x);
-        int col = Mathf.FloorToInt(clickPosition.z);
-
-        // StageManagerを使用して石を配置
-        PlacePiece(row, col);
+        grid = new GameObject[rows, columns];
     }
 
-    private void PlacePiece(int row, int col)
+    void CreateGrid()
     {
-        // 石を配置する処理をここに記述
-
-        // stageManager.PlacePieceOnBoard(row, col, piecePrefab);
-        // 必要ならば、盤面の状態を更新する処理も追加
+        for (int row = 0; row < rows; row++)
+        {
+            for (int col = 0; col < columns; col++)
+            {
+                Vector3 position = new Vector3(col * spacing, 0, row * spacing);
+                GameObject cell = Instantiate(CellPrefab, position, Quaternion.identity);
+                grid[row, col] = cell;
+            }
+        }
     }
 
-    private void InitializeGame()
+    void PlacePiece(int row, int col, int pieceType)
     {
-        // 初期配置をセットアップ
-        stageManager.PlacePieceOnBoard(3, 3, stageManager.whitePiecePrefab);
-        stageManager.PlacePieceOnBoard(4, 4, stageManager.whitePiecePrefab);
-        stageManager.PlacePieceOnBoard(3, 4, stageManager.blackPiecePrefab);
-        stageManager.PlacePieceOnBoard(4, 3, stageManager.blackPiecePrefab);
+        GameObject piecePrefab = pieceType == 1 ? blackPiecePrefab : pieceType == 2 ? whitePiecePrefab : null;
+
+        if (piecePrefab != null)
+        {
+            Vector3 piecePosition = grid[row, col].transform.position;
+            Quaternion rotation = pieceType == 1 ? Quaternion.Euler(180, 0, 0) : Quaternion.identity;
+            Instantiate(piecePrefab, piecePosition, rotation);
+        }
     }
+    public void PlacePiece(int row, int col)
+    {
+        // 黒石を置く処理を行う
+        Vector3 piecePosition = grid[row, col].transform.position;
+        Quaternion rotation = Quaternion.identity;
+        Instantiate(blackPiecePrefab, piecePosition, rotation);
+    }
+
+    void SetupInitialPieces()
+    {
+        // 初期配置のデータ（1が黒石、2が白石を示す）
+        int[,] initialPieces = {
+        {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 1, 2, 0, 0, 0},
+        {0, 0, 0, 2, 1, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0}
+    };
+
+        for (int row = 0; row < rows; row++)
+        {
+            for (int col = 0; col < columns; col++)
+            {
+                int pieceType = initialPieces[row, col];
+                PlacePiece(row, col, pieceType);
+            }
+        }
+    }
+
 }
