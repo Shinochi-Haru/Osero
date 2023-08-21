@@ -269,14 +269,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 294338174}
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 4, y: 8.41, z: 3.47}
+  m_LocalRotation: {x: -0.5, y: 0.5, z: -0.5, w: -0.5}
+  m_LocalPosition: {x: 3.65, y: 8.41, z: 3.47}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 270, z: 0}
 --- !u!1 &306749870
 GameObject:
   m_ObjectHideFlags: 0
@@ -401,7 +401,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CellPrefab: {fileID: 6952241031075596905, guid: a7ddc9ecf257628418f3f6a76c389e1f, type: 3}
-  blackPiecePrefab: {fileID: 1373364770548358981, guid: 9353f719f1e16c9488ed99cdf2f6bd34, type: 3}
+  blackPiecePrefab: {fileID: 1373364770548358981, guid: 8ff262ac77409844b9eed6230a41a8c2, type: 3}
   whitePiecePrefab: {fileID: 1373364770548358981, guid: 9353f719f1e16c9488ed99cdf2f6bd34, type: 3}
   spacing: 1
   rows: 8

@@ -3,13 +3,14 @@ using UnityEngine;
 public class OthelloGame : MonoBehaviour
 {
     [SerializeField] public GameObject CellPrefab;
-    [SerializeField] public GameObject blackPiecePrefab; // 黒石のプレファブ
-    [SerializeField] public GameObject whitePiecePrefab; // 白石のプレファブ
-    [SerializeField] public float spacing = 1.0f; // オブジェクト間の間隔
-    [SerializeField] public int rows = 8; // 行数
-    [SerializeField] public int columns = 8; // 列数
+    [SerializeField] public GameObject blackPiecePrefab;
+    [SerializeField] public GameObject whitePiecePrefab;
+    [SerializeField] public float spacing = 1.0f;
+    [SerializeField] public int rows = 8;
+    [SerializeField] public int columns = 8;
 
-    private GameObject[,] grid; // グリッドの二次元配列
+    private GameObject[,] grid;
+    private int[,] initialPieces;
 
     private void Start()
     {
@@ -43,31 +44,94 @@ public class OthelloGame : MonoBehaviour
         if (piecePrefab != null)
         {
             Vector3 piecePosition = grid[row, col].transform.position;
-            Quaternion rotation = pieceType == 1 ? Quaternion.Euler(180, 0, 0) : Quaternion.identity;
+            Quaternion rotation = Quaternion.identity;
             Instantiate(piecePrefab, piecePosition, rotation);
         }
     }
+
+    void FlipPieces(int row, int col, int pieceType)
+    {
+        int opponentPieceType = pieceType == 1 ? 2 : 1;
+
+        Vector2Int[] directions = {
+            new Vector2Int(0, 1), new Vector2Int(0, -1),
+            new Vector2Int(-1, 0), new Vector2Int(1, 0),
+            new Vector2Int(-1, 1), new Vector2Int(1, 1),
+            new Vector2Int(-1, -1), new Vector2Int(1, -1)
+        };
+
+        foreach (Vector2Int dir in directions)
+        {
+            int r = row + dir.y;
+            int c = col + dir.x;
+            bool validDirection = false;
+            bool foundOpponentPiece = false;
+
+            while (r >= 0 && r < rows && c >= 0 && c < columns)
+            {
+                int cellPieceType = initialPieces[r, c];
+
+                if (cellPieceType == 0)
+                    break;
+
+                if (cellPieceType == opponentPieceType)
+                    foundOpponentPiece = true;
+
+                if (cellPieceType == pieceType && foundOpponentPiece)
+                {
+                    validDirection = true;
+                    break;
+                }
+
+                r += dir.y;
+                c += dir.x;
+            }
+
+            if (validDirection)
+            {
+                r = row + dir.y;
+                c = col + dir.x;
+
+                while (initialPieces[r, c] == opponentPieceType)
+                {
+                    initialPieces[r, c] = pieceType;
+
+                    Vector3 piecePosition = grid[r, c].transform.position;
+                    Quaternion rotation = Quaternion.identity;
+                    GameObject newPiecePrefab = pieceType == 1 ? blackPiecePrefab : whitePiecePrefab;
+                    Instantiate(newPiecePrefab, piecePosition, rotation);
+
+                    r += dir.y;
+                    c += dir.x;
+                }
+            }
+        }
+    }
+
     public void PlacePiece(int row, int col)
     {
-        // 黒石を置く処理を行う
-        Vector3 piecePosition = grid[row, col].transform.position;
-        Quaternion rotation = Quaternion.identity;
-        Instantiate(blackPiecePrefab, piecePosition, rotation);
+        if (initialPieces[row, col] != 0)
+            return;
+
+        int pieceType = 1;
+        initialPieces[row, col] = pieceType;
+        FlipPieces(row, col, pieceType);
+        PlacePiece(row, col, pieceType); // ここでPlacePieceを呼び出して石を表示
     }
 
     void SetupInitialPieces()
     {
-        // 初期配置のデータ（1が黒石、2が白石を示す）
-        int[,] initialPieces = {
-        {0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 1, 2, 0, 0, 0},
-        {0, 0, 0, 2, 1, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0}
-    };
+        initialPieces = new int[,]
+        {
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 1, 2, 0, 0, 0},
+            {0, 0, 0, 2, 1, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0}
+        };
 
         for (int row = 0; row < rows; row++)
         {
@@ -78,5 +142,4 @@ public class OthelloGame : MonoBehaviour
             }
         }
     }
-
 }
