@@ -13,9 +13,9 @@ public class OthelloGame : MonoBehaviour
 
     private GameObject[,] grid;
     private int[,] initialPieces;
-    private int currentPlayer = 1; // 1: 黒、2: 白
+    private int currentPlayer = 1;
 
-    private System.Random random = new System.Random(); // ランダム数生成用のオブジェクト
+    private System.Random random = new System.Random();
 
     private Vector2Int[] directions = {
         new Vector2Int(0, 1), new Vector2Int(0, -1),
@@ -44,20 +44,38 @@ public class OthelloGame : MonoBehaviour
             {
                 Vector3 position = new Vector3(col * spacing, 0, row * spacing);
                 GameObject cell = Instantiate(CellPrefab, position, Quaternion.identity);
+                cell.name = $"Cell ({row}, {col})"; // セルの名前を設定
                 grid[row, col] = cell;
             }
         }
     }
 
+
     void PlacePiece(int row, int col, int pieceType)
     {
         GameObject piecePrefab = pieceType == 1 ? blackPiecePrefab : pieceType == 2 ? whitePiecePrefab : null;
+        Transform cellTransform = grid[row, col].transform;
 
         if (piecePrefab != null)
         {
             Vector3 piecePosition = grid[row, col].transform.position;
             Quaternion rotation = Quaternion.identity;
-            Instantiate(piecePrefab, piecePosition, rotation);
+            GameObject existingPiece = GetPieceAtPosition(row, col);
+            // 既に子オブジェクトがある場合は削除する
+            Debug.Log("Child count: " + cellTransform.childCount);
+            if (existingPiece != null)
+            {
+                Destroy(existingPiece);
+            }
+
+
+            // 新しい石を生成
+            GameObject newPiece = Instantiate(piecePrefab, piecePosition, rotation);
+
+            // 新しい石をセルの子オブジェクトに追加
+            newPiece.transform.parent = grid[row, col].transform;
+
+            Debug.Log("Piece placed at position: " + piecePosition);
         }
     }
 
@@ -72,7 +90,7 @@ public class OthelloGame : MonoBehaviour
             bool validDirection = false;
             bool foundOpponentPiece = false;
 
-            List<Vector2Int> piecesToFlip = new List<Vector2Int>(); // ひっくり返す対象の石を保持するリスト
+            List<Vector2Int> piecesToFlip = new List<Vector2Int>();
 
             while (r >= 0 && r < rows && c >= 0 && c < columns)
             {
@@ -92,7 +110,6 @@ public class OthelloGame : MonoBehaviour
 
                 if (foundOpponentPiece)
                 {
-                    // 挟まれた石をリストに追加
                     piecesToFlip.Add(new Vector2Int(r, c));
                 }
 
@@ -102,20 +119,31 @@ public class OthelloGame : MonoBehaviour
 
             if (validDirection)
             {
-                // 挟まれた石をひっくり返す
                 foreach (Vector2Int pieceToFlip in piecesToFlip)
                 {
+                    Debug.Log("Direction: " + dir);
                     initialPieces[pieceToFlip.x, pieceToFlip.y] = pieceType;
-
                     Vector3 piecePosition = grid[pieceToFlip.x, pieceToFlip.y].transform.position;
                     Quaternion rotation = Quaternion.identity;
                     GameObject newPiecePrefab = pieceType == 1 ? blackPiecePrefab : whitePiecePrefab;
-                    Instantiate(newPiecePrefab, piecePosition, rotation);
+                    Debug.Log("Creating new piece at position: " + piecePosition);
+                    // 新しい石を生成
+                    //Instantiate(newPiecePrefab, piecePosition, rotation);
+                    GameObject newPiece = Instantiate(newPiecePrefab, piecePosition, rotation);
+                    newPiece.transform.parent = grid[pieceToFlip.x, pieceToFlip.y].transform; // 新しい石をセルの子オブジェクトに設定
                 }
             }
         }
     }
-
+    GameObject GetPieceAtPosition(int row, int col)
+    {
+        Transform cellTransform = grid[row, col].transform;
+        if (cellTransform.childCount > 0)
+        {
+            return cellTransform.GetChild(0).gameObject;
+        }
+        return null;
+    }
 
     public void PlacePiece(int row, int col)
     {
@@ -123,7 +151,7 @@ public class OthelloGame : MonoBehaviour
             return;
 
         int pieceType = currentPlayer;
-        int opponentPieceType = 3 - pieceType; // 相手の石の種類
+        int opponentPieceType = 3 - pieceType;
 
         bool isValidMove = false;
 
@@ -165,10 +193,10 @@ public class OthelloGame : MonoBehaviour
             PlacePiece(row, col, pieceType);
             FlipPieces(row, col, pieceType);
 
-            // ターンを交代
             currentPlayer = 3 - currentPlayer;
         }
     }
+
 
     void SetupInitialPieces()
     {
@@ -251,38 +279,31 @@ public class OthelloGame : MonoBehaviour
 
     private void Update()
     {
-        // 現在のプレイヤーがAIの場合、合法な手を選ぶ
-        if (currentPlayer == 2) // AIは2番目のプレイヤーと仮定
+        if (currentPlayer == 2)
         {
             List<Vector2Int> legalMoves = FindLegalMoves(currentPlayer);
             if (legalMoves.Count > 0)
             {
-                // AIが合法な手を選ぶ
                 Vector2Int bestMove = (Vector2Int)ChooseBestMove(legalMoves, currentPlayer);
 
-                // 合法な手を選んだ場合にのみ石を置く
                 if (bestMove != null)
                 {
                     PlacePiece(bestMove.x, bestMove.y);
-                    FlipPieces(bestMove.x, bestMove.y, currentPlayer); // 石をひっくり返す
+                    //FlipPieces(bestMove.x, bestMove.y, currentPlayer);
+                    Debug.Log("白");
                 }
             }
         }
     }
 
-    // 合法な手の中からAIが最適な手を選ぶロジックを追加
     private Vector2Int? ChooseBestMove(List<Vector2Int> legalMoves, int player)
     {
-        // ここに最適な手の選択ロジックを実装します。
-        // この例ではランダムな手を選びますが、AIの戦略に応じて変更してください。
-
         if (legalMoves.Count > 0)
         {
             int randomIndex = random.Next(0, legalMoves.Count);
             return legalMoves[randomIndex];
         }
 
-        return null; // 合法な手がない場合
+        return null;
     }
-
 }

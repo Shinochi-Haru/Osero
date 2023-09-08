@@ -18,4 +18,5 @@ public class CellCont : MonoBehaviour
         int col = Mathf.RoundToInt(transform.position.x / othelloGame.spacing);
         othelloGame.PlacePiece(row, col);
     }
+
 }
