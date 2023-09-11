@@ -309,6 +309,29 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &1675384979 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5736010191359916546, guid: 8c1a0db75ed2c6f469e0a8907ebc065a, type: 3}
+  m_PrefabInstance: {fileID: 5736010190127354490}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1675384982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1675384979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67e11c42d5c8202439f6d2bd3fd5bc7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CellPrefab: {fileID: 6952241031075596905, guid: 45d99427e1fa18840a6c99f4821cd241, type: 3}
+  blackPiecePrefab: {fileID: 1373364770548358981, guid: 8f2a2d869ed5de74cb19adf295f5ce9b, type: 3}
+  whitePiecePrefab: {fileID: 1373364770548358981, guid: a1825bc89ebb03440895340dd848d83f, type: 3}
+  spacing: 1
+  rows: 8
+  columns: 8
 --- !u!1001 &5736010190127354490
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -365,10 +388,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Manager
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5736010191359916544, guid: 8c1a0db75ed2c6f469e0a8907ebc065a, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5736010191359916546, guid: 8c1a0db75ed2c6f469e0a8907ebc065a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1675384982}
   m_SourcePrefab: {fileID: 100100000, guid: 8c1a0db75ed2c6f469e0a8907ebc065a, type: 3}
 --- !u!1001 &6397834667344948467
 PrefabInstance:
